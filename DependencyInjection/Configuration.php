@@ -22,7 +22,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('class_transformer')->defaultValue('pah_resource.class_name.underscore_transformer')->end()
+                ->scalarNode('class_transformer')->defaultValue('pah_resource.class_name.tableizer_transformer')->end()
                 ->scalarNode('form_error_extractor')->defaultValue('pah_resource.form.flattened_error_extractor')->end()
             ->end();
 
