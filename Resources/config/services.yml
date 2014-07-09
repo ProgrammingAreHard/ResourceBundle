@@ -22,8 +22,8 @@ services:
             - @event_dispatcher
             - @pah_resource.class_name.transformer
 
-    pah_resource.class_name.underscore_transformer:
-        class: ProgrammingAreHard\ResourceBundle\Domain\Transformer\ClassName\UnderscoreClassNameTransformer
+    pah_resource.class_name.tableizer_transformer:
+        class: ProgrammingAreHard\ResourceBundle\Domain\Transformer\ClassName\TableizerTransformer
 
     pah_resource.form.flattened_error_extractor:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\FlattenedFormErrorExtractor

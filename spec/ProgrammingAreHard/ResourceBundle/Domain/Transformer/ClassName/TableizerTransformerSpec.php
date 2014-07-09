@@ -5,11 +5,11 @@ namespace spec\ProgrammingAreHard\ResourceBundle\Domain\Transformer\ClassName;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
-class UnderscoreClassNameTransformerSpec extends ObjectBehavior
+class TableizerTransformerSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('ProgrammingAreHard\ResourceBundle\Domain\Transformer\ClassName\UnderscoreClassNameTransformer');
+        $this->shouldHaveType('ProgrammingAreHard\ResourceBundle\Domain\Transformer\ClassName\TableizerTransformer');
     }
 
     function it_can_transform_class_names()

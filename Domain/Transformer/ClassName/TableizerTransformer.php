@@ -5,7 +5,7 @@ namespace ProgrammingAreHard\ResourceBundle\Domain\Transformer\ClassName;
 use Doctrine\Common\Inflector\Inflector;
 use ProgrammingAreHard\ResourceBundle\Domain\Transformer\TransformerInterface;
 
-class UnderscoreClassNameTransformer implements TransformerInterface
+class TableizerTransformer implements TransformerInterface
 {
     /**
      * Name cache.
