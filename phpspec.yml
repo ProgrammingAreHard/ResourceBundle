@@ -1,0 +1,3 @@
+suites:
+    resourcebundle_suite:
+        src_path: ./

@@ -1,0 +1,29 @@
+parameters:
+    crud_permissions:
+        - "VIEW"
+        - "EDIT"
+        - "CREATE"
+        - "DELETE"
+        - "UNDELETE"
+        - "OPERATOR"
+        - "MASTER"
+        - "OWNER"
+
+services:
+
+    pah_resource.form.event_dispatcher:
+        class: ProgrammingAreHard\ResourceBundle\Domain\Form\FormEventDispatcher
+        arguments:
+            - @event_dispatcher
+
+    pah_resource.resource.event_dispatcher:
+        class: ProgrammingAreHard\ResourceBundle\Domain\EventDispatcher\ResourceEventDispatcher
+        arguments:
+            - @event_dispatcher
+            - @pah_resource.class_name.transformer
+
+    pah_resource.class_name.underscore_transformer:
+        class: ProgrammingAreHard\ResourceBundle\Domain\Transformer\ClassName\UnderscoreClassNameTransformer
+
+    pah_resource.form.flattened_error_extractor:
+        class: ProgrammingAreHard\ResourceBundle\Domain\Form\FlattenedFormErrorExtractor
