@@ -199,7 +199,8 @@ services:
 
     myapp.task.form.type:
         class: MyApp\CoreBundle\Domain\Task\Form\Type\TaskType
-        arguments: [%myapp.task.entity.class%]
+        arguments:
+            - %myapp.task.entity.class%
         tags:
             - { name: form.type, alias: task }
 ```
@@ -207,7 +208,7 @@ services:
 ## Form Handlers
 Now that we have a resource, repository, and form it's time to create an implementation of a `FormHandlerInterface`.
 Form handlers are only executed if a request was issued and the form was valid. The bundle comes with a `SaveResourceFormHandler`.
-It extracts the data(the resource from the form) and saves it through a `ResourceManagerInterface`. Let's register a task
+It extracts the data(the resource from the form) and saves it through a `ResourceManagerInterface`. Let's register a resource
 form handler in the container.
 ```yaml
 # src/MyApp/CoreBundle/Resources/services.yml
@@ -218,7 +219,8 @@ services:
 
     myapp.resource.form_handler:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\Handler\SaveResourceFormHandler
-        arguments: [@myapp.resource.manager]
+        arguments:
+            - @myapp.resource.manager
 ```
 
 ##Form Processors
@@ -474,16 +476,20 @@ services:
 
     # other services...
 
+    # redefine to use the eventful manager
     myapp.resource.form_handler:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\Handler\SaveResourceFormHandler
-        arguments: [@myapp.resource.eventful_manager]
+        arguments:
+            - @myapp.resource.eventful_manager
 
+    # redefine to use the above form handler
     myapp.resource.eventful_form_handler:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\Decorator\EventfulFormHandler
         arguments:
             - @myapp.resource.form_handler
             - @pah_resource.form.event_dispatcher
 
+    # redefine to use the above eventful form handler
     myapp.resource.form_processor:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\FormProcessor
         arguments:
