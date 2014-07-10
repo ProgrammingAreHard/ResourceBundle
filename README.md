@@ -12,13 +12,14 @@ to handle content negotiation and RESTful decoding of request bodies. After inst
 you must configure it before proceeding to use the ResourceBundle. [Here is a sample configuration](https://gist.github.com/dadamssg/a4f2784267f893ef9114)
 to get started.
 
-*Note*: The ResourceBundle does not handle any sort of authentication. It is meant to be used in
-conjunction with something like the [FOSOAuthServerBundle](https://github.com/FriendsOfSymfony/FOSOAuthServerBundle).
+***Note***: *The ResourceBundle does not handle any sort of authentication. It is meant to be used in
+conjunction with something like the [FOSOAuthServerBundle](https://github.com/FriendsOfSymfony/FOSOAuthServerBundle).*
 
 ##Bundle Usage
 
 - [Resources](#resources)
 - [Resource Repositories](#resource-repositories)
+- [Resource Managers](#resource-managers)
 - [Resource Forms](#resource-forms)
 - [Form Handlers](#form-handlers)
 - [Form Processors](#form-processors)
@@ -45,14 +46,14 @@ use ProgrammingAreHard\ResourceBundle\Domain\ResourceInterface;
 class Task implements TaskInterface, ResourceInterface
 {
     protected $id;
-    
+
     protected $task;
 
     public function getId()
     {
         return $this->id;
     }
-    
+
     public function isNew()
     {
         return null === $this->getId();
@@ -126,9 +127,24 @@ MyApp\CoreBundle\Entity\Task:
             type: string
             length: 255
 ```
+##Resource Managers
+Just like Doctrine, persisting and deleting resources is not done by repositories. With the ResourceBundle, this is done through a [ResourceManagerInterface](https://github.com/ProgrammingAreHard/ResourceBundle/blob/master/Domain/Manager/ResourceManagerInterface.php) implementation. If using Doctrine, you can use the bundled `ResourceManager`. Internally it uses Doctrine's `ManagerRegistry` to get the correct object manager for the resource.
+```yaml
+# src/MyApp/CoreBundle/Resources/services.yml
+
+services:
+
+    # other services...
+
+    myapp.resource.manager:
+        class: ProgrammingAreHard\ResourceBundle\Domain\Manager\Doctrine\ResourceManager
+        arguments:
+            - @doctrine
+```
+
 
 ## Resource Forms
-The bundle makes use of [Symfony's form component](http://symfony.com/doc/current/book/forms.html) to map incoming data to resources. Time to create a form for our `Task`. 
+The bundle makes use of [Symfony's form component](http://symfony.com/doc/current/book/forms.html) to map incoming data to resources. Time to create a form for our `Task`.
 
 ```php
 <?php // src/MyApp/CoreBundle/Domain/Task/Form/Type/TaskType.php
@@ -145,8 +161,8 @@ class TaskType extends AbstractType
     public function __construct($class)
     {
         $this->class = $class;
-    }
-    
+    }samee
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('task');
@@ -158,7 +174,7 @@ class TaskType extends AbstractType
             'data_class' => $this->class,
         ));
     }
-    
+
     public function getName()
     {
         return 'task';
@@ -176,9 +192,9 @@ Let's register the form with the container.
 
 parameters:
     myapp.task.entity.class: MyApp\CoreBundle\Entity\Task
-    
+
 services:
-    
+
     # other services...
 
     myapp.task.form.type:
@@ -191,18 +207,18 @@ services:
 ## Form Handlers
 Now that we have a resource, repository, and form it's time to create an implementation of a `FormHandlerInterface`.
 Form handlers are only executed if a request was issued and the form was valid. The bundle comes with a `SaveResourceFormHandler`.
-It extracts the data(the entity from the form) and saves it through its repository. Let's register a task
+It extracts the data(the resource from the form) and saves it through a `ResourceManagerInterface`. Let's register a task
 form handler in the container.
 ```yaml
 # src/MyApp/CoreBundle/Resources/services.yml
 
 services:
-    
+
     # other services...
 
-    myapp.task.form_handler:
+    myapp.resource.form_handler:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\Handler\SaveResourceFormHandler
-        arguments: [@myapp.task.repository]
+        arguments: [@myapp.resource.manager]
 ```
 
 ##Form Processors
@@ -211,13 +227,13 @@ We need to use our new handler in a form processor.
 # src/MyApp/CoreBundle/Resources/services.yml
 
 services:
-    
+
     # other services...
 
-    myapp.task.form_processor:
+    myapp.resource.form_processor:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\FormProcessor
-        arguments: 
-            - @myapp.task.form_handler
+        arguments:
+            - @myapp.resource.form_handler
             - @pah_resource.form.error_extractor
 ```
 
@@ -278,7 +294,15 @@ class TaskController extends ResourceController
      */
     protected function getFormProcessor()
     {
-        return $this->get('myapp.task.form_processor');
+        return $this->get('myapp.resource.form_processor');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getResourceManager()
+    {
+        return $this->get('myapp.resource.manager');
     }
 
     /**
@@ -290,7 +314,9 @@ class TaskController extends ResourceController
     }
 }
 ```
-**Note**: The `$resourceClass` is used by the `ResourceController` to find the relevant form, naming events, and in the resource serialization. 
+***Note***: *The `$resourceClass` is used by the `ResourceController` to find the relevant form, naming events, and serializing resources.*
+
+***Tip***: *You might want to create your own base `ResourceController` and implement `::getFormProcessor()` and `::getResourceManager()` as they will probably be the same across each of your resource controllers.*
 
 Because the `ResourceController` uses symfony's security component to check basic REST permissions, we need to implement
 a security voter. You can customize this to suit your application's needs. For now, we're going to allow everything.
@@ -326,7 +352,7 @@ class ResourceVoter implements VoterInterface
      */
     public function vote(TokenInterface $token, $resource, array $attributes)
     {
-        // Your application's logic to determine if the user has permission 
+        // Your application's logic to determine if the user has permission
         // to perform 'VIEW', 'CREATE', 'UPDATE', and/or 'DELETE' permissions.
 
         if ($resource instanceof ResourceInterface) {
@@ -335,12 +361,12 @@ class ResourceVoter implements VoterInterface
 
         return VoterInterface::ACCESS_ABSTAIN;
     }
-} 
+}
 ```
 Don't forget to register it.
 
 ```yaml
-# src/MyApp/CoreBundle/Resources/services.yml    
+# src/MyApp/CoreBundle/Resources/services.yml
 
 services:
 
@@ -398,7 +424,7 @@ myapp_task_delete:
 I highly recommend you take a peek at the [ResourceController](https://github.com/ProgrammingAreHard/ResourceBundle/blob/master/Controller/ResourceController.php)
 to see what's happening under the hood.
 
-By default, the ResourceBundle uses Symfony's serializer component to serialize resources for responses. However, I recommend using the [JMSSerializerBundle](https://github.com/schmittjoh/JMSSerializerBundle) for more flexibility. 
+By default, the ResourceBundle uses Symfony's serializer component to serialize resources for responses. However, I recommend using the [JMSSerializerBundle](https://github.com/schmittjoh/JMSSerializerBundle) for more flexibility.
 
 ##Events
 
@@ -406,24 +432,24 @@ The bundle's components are developed in a manner to make it easy to add functio
 functionality is the ability to dispatch events. Events can be dispatched by wrapping certain components in decorators.
 The bundle comes with three.
 
-###Eventful Repository
-You can use this decorator to dispatch events during repository interactions.
+###Eventful Resource Manager
+You can use this decorator to dispatch events during manager interactions.
 
 ```yaml
-# src/MyApp/CoreBundle/Resources/services.yml    
+# src/MyApp/CoreBundle/Resources/services.yml
 
 services:
 
     # other services...
-    
-    myapp.task.eventful_repository:
-        class: ProgrammingAreHard\ResourceBundle\Domain\Repository\Decorator\EventfulResourceRepository
+
+    myapp.resource.eventful_manager:
+        class: ProgrammingAreHard\ResourceBundle\Domain\Manager\Decorator\EventfulResourceManager
         arguments:
-            - @myapp.task.repository
+            - @myapp.resource.manager
             - @pah_resource.resource.event_dispatcher
 ```
 
-Using this decorator with the task repository will dispatch the following events:
+By using this decorator, the following events will be dispatched:
 
  - task.pre_save
  - task.post_save
@@ -433,7 +459,7 @@ Using this decorator with the task repository will dispatch the following events
  - task.post_update
  - task.pre_delete
  - task.post_delete
- 
+
 It uses the [ResourceEventDispatcher](https://github.com/ProgrammingAreHard/ResourceBundle/blob/master/Domain/EventDispatcher/ResourceEventDispatcher.php)
 to dispatch these events. It uses the same class transformer as the ResourceController does when finding a resource's form.
 It lowercases and underscores a resource's class to use in the event name. Feel free to use the resource event dispatcher
@@ -442,26 +468,26 @@ in your own code(like in your event listeners).
 ###Eventful Form Handler
 You can decorate your form handlers to dispatch pre and post handle events.
 ```yaml
-# src/MyApp/CoreBundle/Resources/services.yml    
+# src/MyApp/CoreBundle/Resources/services.yml
 
 services:
 
     # other services...
 
-    myapp.task.form_handler:
+    myapp.resource.form_handler:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\Handler\SaveResourceFormHandler
-        arguments: [@myapp.task.eventful_repository]
+        arguments: [@myapp.resource.eventful_manager]
 
-    myapp.task.eventful_form_handler:
+    myapp.resource.eventful_form_handler:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\Decorator\EventfulFormHandler
         arguments:
-            - @myapp.task.form_handler
+            - @myapp.resource.form_handler
             - @pah_resource.form.event_dispatcher
-    
-    myapp.task.form_processor:
+
+    myapp.resource.form_processor:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\FormProcessor
-        arguments: 
-            - @myapp.task.eventful_form_handler
+        arguments:
+            - @myapp.resource.eventful_form_handler
             - @pah_resource.form.error_extractor
 ```
 
@@ -473,16 +499,16 @@ Using this decorator will dispatch the following events for the task's form hand
 ###Eventful Form Processor
 You can also decorate form processors to dispatch certain events throughout the form processing.
 ```yaml
-# src/MyApp/CoreBundle/Resources/services.yml    
+# src/MyApp/CoreBundle/Resources/services.yml
 
 services:
 
     # other services...
-    
-    myapp.task.eventful_form_processor:
+
+    myapp.resource.eventful_form_processor:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\Decorator\EventfulFormProcessor
         arguments:
-            - @myapp.task.form_processor
+            - @myapp.resource.form_processor
             - @pah_resource.form.event_dispatcher
 ```
 
@@ -503,10 +529,10 @@ To summarize, by taking advantage of these decorators you will have access to th
 - task.pre_delete
 - task.post_delete
 - task.form.initialize
-- task.form.invalid 
+- task.form.invalid
 - task.form.pre_handle
 - task.form.post_handle
-- task.form.complete 
+- task.form.complete
 
 Don't forget to use them in your `ResourceController`s though!
 
