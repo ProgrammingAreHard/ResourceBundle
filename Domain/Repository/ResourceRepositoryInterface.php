@@ -9,7 +9,7 @@ interface ResourceRepositoryInterface
     /**
      * Get a new resource instance.
      *
-     * @return Resource
+     * @return ResourceInterface
      */
     public function newInstance();
 
@@ -17,21 +17,7 @@ interface ResourceRepositoryInterface
      * Find a resource.
      *
      * @param int $id
-     * @return Resource
+     * @return ResourceInterface
      */
     public function find($id);
-
-    /**
-     * Save a resource.
-     *
-     * @param Resource $resource
-     */
-    public function save(ResourceInterface $resource);
-
-    /**
-     * Delete a resource.
-     *
-     * @param Resource $resource
-     */
-    public function delete(ResourceInterface $resource);
 } 

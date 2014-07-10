@@ -4,6 +4,7 @@ namespace ProgrammingAreHard\ResourceBundle\Domain\Form\Handler;
 
 use ProgrammingAreHard\ResourceBundle\Domain\Form\Exception\ResourceFormDataException;
 use ProgrammingAreHard\ResourceBundle\Domain\Form\FormHandlerInterface;
+use ProgrammingAreHard\ResourceBundle\Domain\Manager\ResourceManagerInterface;
 use ProgrammingAreHard\ResourceBundle\Domain\Repository\ResourceRepositoryInterface;
 use ProgrammingAreHard\ResourceBundle\Domain\ResourceInterface;
 use Symfony\Component\Form\FormInterface;
@@ -12,18 +13,18 @@ use Symfony\Component\HttpFoundation\Request;
 final class SaveResourceFormHandler implements FormHandlerInterface
 {
     /**
-     * @var ResourceRepositoryInterface
+     * @var ResourceManagerInterface
      */
-    private $repository;
+    private $manager;
 
     /**
      * Constructor.
      *
-     * @param ResourceRepositoryInterface $repository
+     * @param ResourceManagerInterface $manager
      */
-    public function __construct(ResourceRepositoryInterface $repository)
+    public function __construct(ResourceManagerInterface $manager)
     {
-        $this->repository = $repository;
+        $this->manager = $manager;
     }
 
     /**
@@ -33,7 +34,7 @@ final class SaveResourceFormHandler implements FormHandlerInterface
     {
         $this->guardValidResource($resource = $form->getData());
 
-        $this->repository->save($resource);
+        $this->manager->save($resource);
     }
 
     /**

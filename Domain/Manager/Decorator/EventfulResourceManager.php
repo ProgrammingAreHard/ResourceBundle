@@ -1,51 +1,35 @@
 <?php
 
-namespace ProgrammingAreHard\ResourceBundle\Domain\Repository\Decorator;
-
+namespace ProgrammingAreHard\ResourceBundle\Domain\Manager\Decorator;
 
 use ProgrammingAreHard\ResourceBundle\Domain\Event\ResourceEvents;
 use ProgrammingAreHard\ResourceBundle\Domain\EventDispatcher\ResourceEventDispatcherInterface;
-use ProgrammingAreHard\ResourceBundle\Domain\Repository\ResourceRepositoryInterface;
+use ProgrammingAreHard\ResourceBundle\Domain\Manager\ResourceManagerInterface;
 use ProgrammingAreHard\ResourceBundle\Domain\ResourceInterface;
 
-class EventfulResourceRepository implements ResourceRepositoryInterface
+class EventfulResourceManager implements ResourceManagerInterface
 {
-    /**
-     * @var ResourceRepositoryInterface
-     */
-    private $repository;
-
     /**
      * @var ResourceEventDispatcherInterface
      */
     private $dispatcher;
 
     /**
+     * @var
+     * ResourceManagerInterface
+     */
+    private $manager;
+
+    /**
      * Constructor.
      *
-     * @param ResourceRepositoryInterface $repository
+     * @param ResourceManagerInterface $manager
      * @param ResourceEventDispatcherInterface $dispatcher
      */
-    public function __construct(ResourceRepositoryInterface $repository, ResourceEventDispatcherInterface $dispatcher)
+    public function __construct(ResourceManagerInterface $manager, ResourceEventDispatcherInterface $dispatcher)
     {
-        $this->repository = $repository;
         $this->dispatcher = $dispatcher;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function newInstance()
-    {
-        return $this->repository->newInstance();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function find($id)
-    {
-        return $this->repository->find($id);
+        $this->manager = $manager;
     }
 
     /**
@@ -58,7 +42,6 @@ class EventfulResourceRepository implements ResourceRepositoryInterface
         } else {
             $this->update($resource);
         }
-
     }
 
     /**
@@ -91,7 +74,7 @@ class EventfulResourceRepository implements ResourceRepositoryInterface
     public function delete(ResourceInterface $resource)
     {
         $this->dispatcher->dispatch(ResourceEvents::PRE_DELETE, $resource);
-        $this->repository->delete($resource);
+        $this->manager->delete($resource);
         $this->dispatcher->dispatch(ResourceEvents::POST_DELETE, $resource);
     }
 
@@ -103,7 +86,7 @@ class EventfulResourceRepository implements ResourceRepositoryInterface
     private function eventfullySave(ResourceInterface $resource)
     {
         $this->dispatcher->dispatch(ResourceEvents::PRE_SAVE, $resource);
-        $this->repository->save($resource);
+        $this->manager->save($resource);
         $this->dispatcher->dispatch(ResourceEvents::POST_SAVE, $resource);
     }
-} 
+}

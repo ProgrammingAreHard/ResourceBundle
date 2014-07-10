@@ -7,6 +7,7 @@ use FOS\RestBundle\Util\Codes;
 use ProgrammingAreHard\ResourceBundle\DependencyInjection\ProgrammingAreHardResourceExtension as ResourceExtension;
 use ProgrammingAreHard\ResourceBundle\Domain\Event\ResourceEvents;
 use ProgrammingAreHard\ResourceBundle\Domain\Form\FormProcessorInterface;
+use ProgrammingAreHard\ResourceBundle\Domain\Manager\ResourceManagerInterface;
 use ProgrammingAreHard\ResourceBundle\Domain\Repository\ResourceRepositoryInterface;
 use ProgrammingAreHard\ResourceBundle\Domain\ResourceInterface;
 use Symfony\Component\Form\FormInterface;
@@ -111,7 +112,7 @@ abstract class ResourceController extends ApiController
 
         $this->grantOr403('DELETE', $resource);
 
-        $this->getResourceRepository()->delete($resource);
+        $this->getResourceManager()->delete($resource);
 
         return $this->noContent();
     }
@@ -240,4 +241,11 @@ abstract class ResourceController extends ApiController
      * @return ResourceRepositoryInterface
      */
     abstract protected function getResourceRepository();
+
+    /**
+     * Get the resource manager.
+     *
+     * @return ResourceManagerInterface
+     */
+    abstract protected function getResourceManager();
 } 

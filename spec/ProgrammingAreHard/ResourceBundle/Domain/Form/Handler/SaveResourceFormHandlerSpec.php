@@ -3,6 +3,7 @@
 namespace spec\ProgrammingAreHard\ResourceBundle\Domain\Form\Handler;
 
 use PhpSpec\ObjectBehavior;
+use ProgrammingAreHard\ResourceBundle\Domain\Manager\ResourceManagerInterface;
 use ProgrammingAreHard\ResourceBundle\Domain\Repository\ResourceRepositoryInterface;
 use ProgrammingAreHard\ResourceBundle\Domain\ResourceInterface;
 use Prophecy\Argument;
@@ -11,9 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SaveResourceFormHandlerSpec extends ObjectBehavior
 {
-    function let(ResourceRepositoryInterface $repository)
+    function let(ResourceManagerInterface $manager)
     {
-        $this->beConstructedWith($repository);
+        $this->beConstructedWith($manager);
     }
 
     function it_is_initializable()
@@ -23,25 +24,25 @@ class SaveResourceFormHandlerSpec extends ObjectBehavior
 
     function it_throws_exception_if_form_does_not_contain_resource(
         FormInterface $form,
-        ResourceRepositoryInterface $repository,
+        ResourceManagerInterface $manager,
         Request $request
     ) {
 
-        $repository->save(Argument::any())->shouldNotBeCalled();
+        $manager->save(Argument::any())->shouldNotBeCalled();
 
         $this->shouldThrow('\RunTimeException')->during('handle', array($form, $request));
     }
 
     function it_saves_to_repository_when_form_contains_resource(
         FormInterface $form,
-        ResourceRepositoryInterface $repository,
+        ResourceManagerInterface $manager,
         ResourceInterface $resource,
         Request $request
     ) {
 
         $form->getData()->willReturn($resource);
 
-        $repository->save($resource)->shouldBeCalled();
+        $manager->save($resource)->shouldBeCalled();
 
         $this->handle($form, $request);
     }
