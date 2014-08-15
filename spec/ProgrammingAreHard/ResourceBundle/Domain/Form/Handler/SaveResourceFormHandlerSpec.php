@@ -30,7 +30,7 @@ class SaveResourceFormHandlerSpec extends ObjectBehavior
 
         $manager->save(Argument::any())->shouldNotBeCalled();
 
-        $this->shouldThrow('\RunTimeException')->during('handle', array($form, $request));
+        $this->shouldThrow('ProgrammingAreHard\ResourceBundle\Domain\Form\Exception\ResourceFormDataException')->during('handle', array($form, $request));
     }
 
     function it_saves_to_repository_when_form_contains_resource(

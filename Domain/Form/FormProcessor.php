@@ -2,6 +2,7 @@
 
 namespace ProgrammingAreHard\ResourceBundle\Domain\Form;
 
+use ProgrammingAreHard\ResourceBundle\Domain\Form\Exception\UnsubmittedFormException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -37,6 +38,10 @@ final class FormProcessor implements FormProcessorInterface
     public function process(FormInterface $form, Request $request)
     {
         $form->handleRequest($request);
+
+        if (!$form->isSubmitted()) {
+            throw new UnsubmittedFormException;
+        }
 
         if (!$form->isValid()) {
             return $this->errorExtractor->extract($form);

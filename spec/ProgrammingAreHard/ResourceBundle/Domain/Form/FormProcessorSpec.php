@@ -32,6 +32,7 @@ class FormProcessorSpec extends ObjectBehavior
         $formHandler->handle($form, $request)->shouldNotBeCalled();
 
         $form->handleRequest($request)->shouldBeCalled();
+        $form->isSubmitted()->willReturn(true);
         $form->isValid()->willReturn(false);
 
         $errorExtractor->extract($form)->willReturn($errors = array('foo' => 'bar'));
@@ -48,10 +49,30 @@ class FormProcessorSpec extends ObjectBehavior
         $errorExtractor->extract($form)->shouldNotBeCalled();
 
         $form->handleRequest($request)->shouldBeCalled();
+        $form->isSubmitted()->willReturn(true);
         $form->isValid()->willReturn(true);
 
         $formHandler->handle($form, $request)->shouldBeCalled();
 
         $this->process($form, $request)->shouldReturn(null);
+    }
+
+    function it_should_throw_exception_if_unsubmitted_form(
+        FormHandlerInterface $formHandler,
+        FormErrorExtractorInterface $errorExtractor,
+        FormInterface $form,
+        Request $request
+    ) {
+        $errorExtractor->extract($form)->shouldNotBeCalled();
+        $formHandler->handle($form, $request)->shouldNotBeCalled();
+
+        $form->isSubmitted()->willReturn(false);
+
+        $form->handleRequest($request)->shouldBeCalled();
+
+        $this->shouldThrow('ProgrammingAreHard\ResourceBundle\Domain\Form\Exception\UnsubmittedFormException')->during(
+            'process',
+            array($form, $request)
+        );
     }
 }
