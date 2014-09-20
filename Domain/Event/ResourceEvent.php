@@ -13,7 +13,9 @@ class ResourceEvent extends Event
     protected $resource;
 
     /**
-     * @param Resource $resource
+     * Constructor. 
+     *
+     * @param ResourceInterface $resource
      */
     public function __construct(ResourceInterface $resource)
     {
@@ -23,7 +25,7 @@ class ResourceEvent extends Event
     /**
      * Get the resource.
      *
-     * @return Resource
+     * @return ResourceInterface
      */
     public function getResource()
     {
