@@ -161,7 +161,7 @@ class TaskType extends AbstractType
     public function __construct($class)
     {
         $this->class = $class;
-    }samee
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
