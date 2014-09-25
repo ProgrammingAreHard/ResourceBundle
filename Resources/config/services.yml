@@ -28,7 +28,7 @@ services:
     pah_resource.form.flattened_error_extractor:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\FlattenedFormErrorExtractor
 
-    pah_resource.form.eventful_form_processor_factory:
+    pah_resource.form.eventful_processor_factory:
         class: ProgrammingAreHard\ResourceBundle\Domain\Form\Factory\EventfulFormProcessorFactory
         arguments:
             - @pah_resource.form.event_dispatcher
