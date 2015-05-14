@@ -89,7 +89,7 @@ class ApiController extends FOSRestController
         $data = $this->data;
 
         if ($this->errors) {
-            $errors = isset($data['errors']) ? $data['errors'] : array();
+            $errors = array_key_exists('errors', $data) ? $data['errors'] : array();
             $data['errors'] = array_merge($this->errors, $errors);
         }
 
@@ -103,7 +103,7 @@ class ApiController extends FOSRestController
     }
 
     /**
-     * Responsd with form errors.
+     * Respond with form errors.
      *
      * @param FormInterface $form
      * @return Response
